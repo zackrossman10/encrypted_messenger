@@ -96,6 +96,7 @@ for addr in ADDR_SPACE:
 		os.mkdir(addr_dir)
 		os.mkdir(addr_dir + '/IN')
 		os.mkdir(addr_dir + '/OUT')
+		os.mkdir(addr_dir + '/keypairs')
 		print('Done.')
 
 # if program was called with --clean, perform clean-up here
@@ -106,6 +107,8 @@ if CLEAN:
 		for f in os.listdir(in_dir): os.remove(in_dir + '/' + f)
 		out_dir = NET_PATH + addr + '/OUT'
 		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
+		keypair_dir = NET_PATH + addr + '/keypairs'
+		for f in os.listdir(keypair_dir): os.remove(keypair_dir + '/' + f)
         
 # initialize state (needed for tracking last read messages from OUT dirs)
 last_read = {}		
