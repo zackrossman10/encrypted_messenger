@@ -2,11 +2,17 @@
 #network.py
 
 import os, sys, getopt, time
+sys.path.insert(0, '../crypto/')
+from RSACertGenerator import RSACertGenerator
+from RSAKeyGenerator import RSAKeyGenerator
 
 NET_PATH = './'
 ADDR_SPACE = 'ABC'
 CLEAN = False
 TIMEOUT = 0.500  # 500 millisec
+
+cert_generator = RSACertGenerator()
+key_generator = RSAKeyGenerator()
 
 def read_msg(src):
 	global last_read
@@ -99,8 +105,21 @@ for addr in ADDR_SPACE:
 		os.mkdir(addr_dir + '/keypairs')
 		print('Done.')
 
+# create public folder for RSA pub keys, another for certificates
+if not os.path.exists(NET_PATH + '/pubkeys'):
+	os.mkdir(NET_PATH + '/pubkeys')
+
+# create public folder pubkey certificates
+if not os.path.exists(NET_PATH + '/certs'):
+	os.mkdir(NET_PATH + '/certs')
+
+# create public folder pubkey certificates
+if not os.path.exists(NET_PATH + '/certs'):
+	os.mkdir(NET_PATH + '/ca')
+
 # if program was called with --clean, perform clean-up here
 # go through the addr folders and delete messages
+# go through pubkey folder and delete pubkeys
 if CLEAN:
 	for addr in ADDR_SPACE:
 		in_dir = NET_PATH + addr + '/IN'
@@ -109,6 +128,10 @@ if CLEAN:
 		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
 		keypair_dir = NET_PATH + addr + '/keypairs'
 		for f in os.listdir(keypair_dir): os.remove(keypair_dir + '/' + f)
+	pubkey_dir = NET_PATH + '/pubkeys'
+	for f in os.listdir(pubkey_dir): os.remove(pubkey_dir + '/' + f)
+	ca_dir = NET_PATH + 'ca/keypairs'
+	for f in os.listdir(ca_dir): os.remove(ca_dir + '/' + f)
         
 # initialize state (needed for tracking last read messages from OUT dirs)
 last_read = {}		
@@ -116,6 +139,14 @@ for addr in ADDR_SPACE:
 	out_dir = NET_PATH + addr + '/OUT'
 	msgs = sorted(os.listdir(out_dir))
 	last_read[addr] = len(msgs) - 1
+
+# create new RSA pub/priv keypair for network, will act as cert authority
+key_generator.initialize_ca_keypair()
+
+# create new RSA pub/priv keypairs and certificates for every participant
+for addr in ADDR_SPACE:
+	key_generator.initialize_participant_keypair(addr)
+	cert_generator.initialize_participant_cert(addr)
 		
 # main loop
 print('Main loop started, quit with pressing CTRL-C...')
