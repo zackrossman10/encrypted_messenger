@@ -5,14 +5,16 @@ import os, sys, getopt, time
 sys.path.insert(0, '../crypto/')
 from RSACertGenerator import RSACertGenerator
 from RSAKeyGenerator import RSAKeyGenerator
+from ISOExchangeManager import ISOExchangeManager
 
 NET_PATH = './'
-ADDR_SPACE = 'ABC'
+ADDR_SPACE = 'ABCDE'
 CLEAN = False
 TIMEOUT = 0.500  # 500 millisec
 
-cert_generator = RSACertGenerator()
-key_generator = RSAKeyGenerator()
+#create a shared secret
+iso_manager = ISOExchangeManager(ADDR_SPACE)
+iso_manager.execute()
 
 def read_msg(src):
 	global last_read
@@ -141,9 +143,11 @@ for addr in ADDR_SPACE:
 	last_read[addr] = len(msgs) - 1
 
 # create new RSA pub/priv keypair for network, will act as cert authority
+key_generator = RSAKeyGenerator()
 key_generator.initialize_ca_keypair()
 
 # create new RSA pub/priv keypairs and certificates for every participant
+cert_generator = RSACertGenerator()
 for addr in ADDR_SPACE:
 	key_generator.initialize_participant_keypair(addr)
 	cert_generator.initialize_participant_cert(addr)

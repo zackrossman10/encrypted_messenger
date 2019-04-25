@@ -19,8 +19,7 @@ class network_interface:
 			os.mkdir(addr_dir)
 			os.mkdir(addr_dir + '/IN')
 			os.mkdir(addr_dir + '/OUT')
-            os.mkdir(addr_dir + '/keypairs')
-            
+			os.mkdir(addr_dir + '/keypairs')
 		in_dir = addr_dir + '/IN'
 		msgs = sorted(os.listdir(in_dir))
 		self.last_read = len(msgs) - 1
