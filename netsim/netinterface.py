@@ -26,7 +26,6 @@ class network_interface:
 
 	
 	def send_msg(self, dst, msg):
-
 		out_dir = self.net_path + self.own_addr + '/OUT'
 		msgs = sorted(os.listdir(out_dir))
 

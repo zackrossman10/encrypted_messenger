@@ -7,14 +7,11 @@ from RSACertGenerator import RSACertGenerator
 from RSAKeyGenerator import RSAKeyGenerator
 from ISOExchangeManager import ISOExchangeManager
 
-NET_PATH = './'
+NET_PATH = './network/'
 ADDR_SPACE = 'ABCDE'
 CLEAN = False
 TIMEOUT = 0.500  # 500 millisec
 
-#create a shared secret
-iso_manager = ISOExchangeManager(ADDR_SPACE)
-iso_manager.execute()
 
 def read_msg(src):
 	global last_read
@@ -46,6 +43,7 @@ def write_msg(dst, msg):
 	with open(in_dir + '/' + next_msg, 'wb') as f: f.write(msg)
 
 	return
+
 
 # ------------       
 # main program
@@ -151,15 +149,28 @@ cert_generator = RSACertGenerator()
 for addr in ADDR_SPACE:
 	key_generator.initialize_participant_keypair(addr)
 	cert_generator.initialize_participant_cert(addr)
-		
-# main loop
-print('Main loop started, quit with pressing CTRL-C...')
-while True:
-	time.sleep(TIMEOUT)
-	for src in ADDR_SPACE:
-		msg, dsts = read_msg(src)                               # read outgoing message
-		if dsts != '':											# if read returned a message...
-			if dsts == '+': dsts = ADDR_SPACE					# handle broadcast address +
-			for dst in dsts:									# for all destinations of the message...
-				if dst in ADDR_SPACE:							# destination must be a valid address
-					write_msg(dst, msg)                         # write incoming message
+
+
+#create a shared secret
+iso_manager = ISOExchangeManager(ADDR_SPACE)
+iso_manager.execute_send()
+
+# network moves messages from leader's OUT directory 
+# to participants' IN directories
+for dst in ADDR_SPACE:
+	msg, dsts = read_msg(iso_manager.leader_address)        
+	write_msg(dsts, msg)             
+
+iso_manager.execute_receive()
+
+# # main loop
+# print('Main loop started, quit with pressing CTRL-C...')
+# while True:
+# 	time.sleep(TIMEOUT)
+# 	for src in ADDR_SPACE:
+# 		msg, dsts = read_msg(src)                               # read outgoing message
+# 		if dsts != '':											# if read returned a message...
+# 			if dsts == '+': dsts = ADDR_SPACE					# handle broadcast address +
+# 			for dst in dsts:									# for all destinations of the message...
+# 				if dst in ADDR_SPACE:							# destination must be a valid address
+# 					write_msg(dst, msg)                         # write incoming message
