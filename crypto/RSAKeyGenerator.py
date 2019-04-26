@@ -3,7 +3,7 @@ from Crypto.PublicKey import RSA
 class RSAKeyGenerator():
 
 	def initialize_participant_keypair(self, participant_addr):
-		key = RSA.generate(4096)
+		key = RSA.generate(1024)
 
 		# export the entire key pair in PEM format into participant's private dir
 		ofile = open('../netsim/network/' + participant_addr + '/keypairs/rsa-key.pem', 'w')
@@ -18,7 +18,7 @@ class RSAKeyGenerator():
 		print("Keypair generated for Participant " + participant_addr)
 
 	def initialize_ca_keypair(self):
-		key = RSA.generate(4096)
+		key = RSA.generate(1024)
 
 		# export the entire key pair in PEM format into ca's private dir
 		ofile = open('../netsim/network/ca/keypairs/rsa-key.pem', 'w')
