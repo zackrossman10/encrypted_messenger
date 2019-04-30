@@ -44,11 +44,8 @@ class RSASigManager:
 		# verify the signature
 		result = verifier.verify(h, signature)
 
-		# print the result of the verification on the screen 
-		print('Done.')
+		# return the result of the verification on the screen 
 		if result:
-		        print('The signature is correct.')
 		        return True
 		else:
-		        print('The signature is incorrect.')
 		        return False

@@ -1,4 +1,4 @@
-import sys, getopt, datetime
+import os, sys, getopt, datetime
 from Crypto.Signature import PKCS1_PSS
 from Crypto.Hash import MD5, SHA256
 from Crypto.PublicKey import RSA
@@ -68,6 +68,7 @@ class ISOExchangeManager():
 
 	# main function for receiver side of ISO exchange
 	def execute_receive(self):
+
 		for participant_address in self.address_space:
 			# read, decrypt PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) message 
 			with open(NET_PATH + participant_address + "/IN/0000", 'rb') as f: enc_msg = f.read()	
@@ -80,9 +81,22 @@ class ISOExchangeManager():
 			ver_payload = str.encode(participant_address) + shared_secret + timestamp
 
 			if self.sig_manager.verify(ver_payload, b64decode(signature)):
-				print("Good")
+				print('Participant ' + participant_address + ': received and verified ISO11770 message')
+			else:
+				print('Participant ' + participant_address + ': received a ISO11770 message, ** VERIFICATION FAILED **')
 
-			# verify Sigkpk-(B|K|T_Pk))
+			# store private key
+			ofile = open(NET_PATH + participant_address + '/shared_secret.pem', 'w')
+			ofile.write(b64encode(signature).decode('ASCII'))
+			ofile.close()
+
+			# messages related to ISO protocol for security reasons 
+			sending_dir = NET_PATH + participant_address + '/OUT'
+			receiving_dir = NET_PATH + participant_address + '/IN'
+			for f in os.listdir(sending_dir): os.remove(sending_dir + '/' + f)
+			for f in os.listdir(receiving_dir): os.remove(receiving_dir + '/' + f)
+
+		print("Ready for chat to begin")
 
 
 	# return PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) using hybrid encryption
