@@ -3,7 +3,7 @@
 
 import os, sys, getopt, time
 sys.path.insert(0, '../crypto/')
-from RSACertGenerator import RSACertGenerator
+from RSACertManager import RSACertManager
 from RSAKeyGenerator import RSAKeyGenerator
 from ISOExchangeManager import ISOExchangeManager
 
@@ -145,10 +145,10 @@ key_generator = RSAKeyGenerator()
 key_generator.initialize_ca_keypair()
 
 # create new RSA pub/priv keypairs and certificates for every participant
-cert_generator = RSACertGenerator()
+cert_manager = RSACertManager()
 for addr in ADDR_SPACE:
 	key_generator.initialize_participant_keypair(addr)
-	cert_generator.initialize_participant_cert(addr)
+	cert_manager.initialize_participant_cert(addr)
 
 
 #create a shared secret

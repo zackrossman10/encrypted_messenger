@@ -6,7 +6,7 @@ from base64 import b64encode, b64decode
 
 RSAkey_length = 1024
 
-class RSACertGenerator():
+class RSACertManager():
     def __init__(self):
         #keep track of serial numbers for issued certificates
         self.serial_num_count = 1
@@ -26,7 +26,7 @@ class RSACertGenerator():
 
     def sign(self, certdatastr):
         h = SHA.new()
-        h.update(RSACertGenerator.md5(certdatastr.encode('ASCII')))
+        h.update(RSACertManager.md5(certdatastr.encode('ASCII')))
 
         signature = self.signer.sign(h)
         return signature
