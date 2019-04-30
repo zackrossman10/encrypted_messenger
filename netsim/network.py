@@ -128,6 +128,7 @@ if CLEAN:
 		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
 		keypair_dir = NET_PATH + addr + '/keypairs'
 		for f in os.listdir(keypair_dir): os.remove(keypair_dir + '/' + f)
+		# os.remove(NET_PATH + addr + '/shared_secret.pem')
 	pubkey_dir = NET_PATH + '/pubkeys'
 	for f in os.listdir(pubkey_dir): os.remove(pubkey_dir + '/' + f)
 	ca_dir = NET_PATH + 'ca/keypairs'
