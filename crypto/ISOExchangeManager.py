@@ -105,9 +105,12 @@ class ISOExchangeManager():
 		payload = str.encode(self.leader_address) + shared_secret + str.encode(dt_string + signature)
 		payload = Padding.pad(payload, AES.block_size)
 
-		# get the leader's public key
-		kfile = open('../netsim/network/pubkeys/rsa-pubkey' + recipient_address + '.pem', 'r')
-		pubkeystr = kfile.read()
+		# get the recipient's public key
+		kfile = open('../netsim/network/certs/RSA-cert' + recipient_address + '.pem', 'r')
+		buf = kfile.read()
+		start = buf.find('\n-----RSA-PUBLIC-KEY-----\n') + len('\n-----RSA-PUBLIC-KEY-----\n')
+		pubkey = buf[start:start+219]
+		pubkeystr = '-----BEGIN PUBLIC KEY-----\n' + pubkey + '\n-----END PUBLIC KEY-----\n'
 		kfile.close()
 
 		pubkey = RSA.import_key(pubkeystr)
@@ -120,7 +123,7 @@ class ISOExchangeManager():
 		# encrypt plaintext
 		ciphertext = cipher.encrypt(payload)
 
-		# encrypt the AES key with RSA-OAEP using leader's public key
+		# encrypt the AES key with RSA-OAEP using recipient's public key
 		cipher = PKCS1_OAEP.new(pubkey)
 		cipherkey = cipher.encrypt(private_key)
 

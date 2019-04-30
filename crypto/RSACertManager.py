@@ -4,9 +4,10 @@ from Crypto.Hash import MD5, SHA
 from Crypto.PublicKey import RSA
 from base64 import b64encode, b64decode
 
-RSAkey_length = 1024
-
 class RSACertManager():
+
+    RSAkey_length = 1024
+
     def __init__(self):
         #keep track of serial numbers for issued certificates
         self.serial_num_count = 1
