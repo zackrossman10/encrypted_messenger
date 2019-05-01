@@ -55,7 +55,7 @@ class CBCMessageEncrypter():
 
 
 
-# 
+#
 # try:
 #     opts, args = getopt.getopt(sys.argv[1:],'hi:o:')
 # except getopt.GetoptError:

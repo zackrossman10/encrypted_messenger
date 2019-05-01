@@ -95,7 +95,7 @@ class RSACertManager():
 
         ca_pubkey = RSA.import_key(keystr)
         verifier = PKCS1_PSS.new(ca_pubkey)
-            
+
         certfile = open('../netsim/network/certs/RSA-cert' + participant_addr + '.pem', 'r')
         buf = certfile.read()
         certfile.close()

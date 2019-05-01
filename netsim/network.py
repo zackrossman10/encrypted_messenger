@@ -4,6 +4,7 @@
 import os, sys, getopt, time
 sys.path.insert(0, '../crypto/')
 from ISOExchangeManager import ISOExchangeManager
+from MACandEncryptionKeyManager import MACandEncryptionKeyManager
 
 NET_PATH = './network/'
 ADDR_SPACE = 'ABCDE'
@@ -151,6 +152,10 @@ for dst in ADDR_SPACE:
 	write_msg(dsts, msg)
 
 iso_manager.execute_receive()
+
+#create unique encryption and mac keys for each party member
+Mac_Encryption_manager = MACandEncryptionKeyManager()
+Mac_Encryption_manager.create_mac_encry_key(ADDR_SPACE)
 
 # main loop
 print('Main loop started, quit with pressing CTRL-C...')
