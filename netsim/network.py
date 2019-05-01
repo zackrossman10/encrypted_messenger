@@ -13,20 +13,20 @@ TIMEOUT = 0.500  # 500 millisec
 
 def read_msg(src):
 	global last_read
-	
+
 	out_dir = NET_PATH + src + '/OUT'
 	msgs = sorted(os.listdir(out_dir))
-	
+
 	if len(msgs) - 1 <= last_read[src]: return '', ''
 
 	next_msg = msgs[last_read[src] + 1]
 	dsts = next_msg.split('--')[1]
 	with open(out_dir + '/' + next_msg, 'rb') as f: msg = f.read()
-	
+
 	last_read[src] += 1
 	return msg, dsts
 
-  
+
 def write_msg(dst, msg):
 
 	in_dir = NET_PATH + dst + '/IN'
@@ -37,13 +37,13 @@ def write_msg(dst, msg):
 		next_msg = (int.from_bytes(bytes.fromhex(last_msg), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
 	else:
 		next_msg = '0000'
-	
+
 	with open(in_dir + '/' + next_msg, 'wb') as f: f.write(msg)
 
 	return
 
 
-# ------------       
+# ------------
 # main program
 # ------------
 
@@ -112,8 +112,9 @@ if not os.path.exists(NET_PATH + '/certs'):
 	os.mkdir(NET_PATH + '/certs')
 
 # create public folder pubkey certificates
-if not os.path.exists(NET_PATH + '/certs'):
+if not os.path.exists(NET_PATH + '/ca'):
 	os.mkdir(NET_PATH + '/ca')
+	os.mkdir(NET_PATH + '/ca/keypairs')
 
 # if program was called with --clean, perform clean-up here
 # go through the addr folders and delete messages
@@ -131,9 +132,9 @@ if CLEAN:
 	for f in os.listdir(pubkey_dir): os.remove(pubkey_dir + '/' + f)
 	ca_dir = NET_PATH + 'ca/keypairs'
 	for f in os.listdir(ca_dir): os.remove(ca_dir + '/' + f)
-        
+
 # initialize state (needed for tracking last read messages from OUT dirs)
-last_read = {}		
+last_read = {}
 for addr in ADDR_SPACE:
 	out_dir = NET_PATH + addr + '/OUT'
 	msgs = sorted(os.listdir(out_dir))
@@ -143,11 +144,11 @@ for addr in ADDR_SPACE:
 iso_manager = ISOExchangeManager(ADDR_SPACE)
 iso_manager.execute_send()
 
-# network moves messages from leader's OUT directory 
+# network moves messages from leader's OUT directory
 # to participants' IN directories
 for dst in ADDR_SPACE:
-	msg, dsts = read_msg(iso_manager.leader_address)        
-	write_msg(dsts, msg)             
+	msg, dsts = read_msg(iso_manager.leader_address)
+	write_msg(dsts, msg)
 
 iso_manager.execute_receive()
 

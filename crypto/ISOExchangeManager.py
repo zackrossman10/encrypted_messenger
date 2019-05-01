@@ -68,7 +68,7 @@ class ISOExchangeManager():
 		for recipient_address in self.address_space:
 			sig_payload = str.encode(recipient_address) + shared_secret + str.encode(dt_string)
 			signature = self.sig_manager.sign(sig_payload)
-					
+
 			# payload = A|K|T_Pk|Sigkpk-(B|K|T_Pk
 			payload = str.encode(self.leader_address) + shared_secret + str.encode(dt_string + signature)
 			payload = Padding.pad(payload, AES.block_size)
@@ -79,14 +79,14 @@ class ISOExchangeManager():
 			# network.py will move to participant's IN directory later on
 			netif.send_msg(recipient_address, enc_message)
 
-		print('Composed ISO11770 messages for each participant')	
+		print('Composed ISO11770 messages for each participant')
 
 	# main function for receiver side of ISO exchange
 	def execute_receive(self):
 
 		for participant_address in self.address_space:
-			# read, decrypt PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) message 
-			with open(NET_PATH + participant_address + "/IN/0000", 'rb') as f: enc_msg = f.read()	
+			# read, decrypt PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) message
+			with open(NET_PATH + participant_address + "/IN/0000", 'rb') as f: enc_msg = f.read()
 			payload = self.hybrid_decrypt(participant_address, enc_msg)
 
 			shared_secret = payload[1:SHARED_KEY_LENGTH+1]
@@ -105,7 +105,7 @@ class ISOExchangeManager():
 			ofile.write(b64encode(signature).decode('ASCII'))
 			ofile.close()
 
-			# messages related to ISO protocol for security reasons 
+			# messages related to ISO protocol for security reasons
 			sending_dir = NET_PATH + participant_address + '/OUT'
 			receiving_dir = NET_PATH + participant_address + '/IN'
 			for f in os.listdir(sending_dir): os.remove(sending_dir + '/' + f)
@@ -137,7 +137,7 @@ class ISOExchangeManager():
 
 	# decrypt PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk))
 	def hybrid_decrypt(self, participant_address, enc_msg):
-		
+
 		#get private keypair from keyfile
 		kfile = open(NET_PATH + '/' + participant_address + '/keypairs/rsa-key.pem', 'r')
 		keystr = kfile.read()
