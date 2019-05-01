@@ -3,8 +3,6 @@
 
 import os, sys, getopt, time
 sys.path.insert(0, '../crypto/')
-from RSACertManager import RSACertManager
-from RSAKeyGenerator import RSAKeyGenerator
 from ISOExchangeManager import ISOExchangeManager
 
 NET_PATH = './network/'
@@ -141,18 +139,7 @@ for addr in ADDR_SPACE:
 	msgs = sorted(os.listdir(out_dir))
 	last_read[addr] = len(msgs) - 1
 
-# create new RSA pub/priv keypair for network, will act as cert authority
-key_generator = RSAKeyGenerator()
-key_generator.initialize_ca_keypair()
-
-# create new RSA pub/priv keypairs and certificates for every participant
-cert_manager = RSACertManager()
-for addr in ADDR_SPACE:
-	key_generator.initialize_participant_keypair(addr)
-	cert_manager.initialize_participant_cert(addr)
-
-
-#create a shared secret
+#set up a secure channel
 iso_manager = ISOExchangeManager(ADDR_SPACE)
 iso_manager.execute_send()
 
@@ -164,14 +151,14 @@ for dst in ADDR_SPACE:
 
 iso_manager.execute_receive()
 
-# # main loop
-# print('Main loop started, quit with pressing CTRL-C...')
-# while True:
-# 	time.sleep(TIMEOUT)
-# 	for src in ADDR_SPACE:
-# 		msg, dsts = read_msg(src)                               # read outgoing message
-# 		if dsts != '':											# if read returned a message...
-# 			if dsts == '+': dsts = ADDR_SPACE					# handle broadcast address +
-# 			for dst in dsts:									# for all destinations of the message...
-# 				if dst in ADDR_SPACE:							# destination must be a valid address
-# 					write_msg(dst, msg)                         # write incoming message
+# main loop
+print('Main loop started, quit with pressing CTRL-C...')
+while True:
+	time.sleep(TIMEOUT)
+	for src in ADDR_SPACE:
+		msg, dsts = read_msg(src)                               # read outgoing message
+		if dsts != '':											# if read returned a message...
+			if dsts == '+': dsts = ADDR_SPACE					# handle broadcast address +
+			for dst in dsts:									# for all destinations of the message...
+				if dst in ADDR_SPACE:							# destination must be a valid address
+					write_msg(dst, msg)                         # write incoming message

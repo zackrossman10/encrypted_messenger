@@ -10,20 +10,31 @@ from Crypto.Util import Padding
 import random
 sys.path.insert(0, '../crypto/')
 from RSASigManager import RSASigManager
+from RSACertManager import RSACertManager
+from RSAKeyGenerator import RSAKeyGenerator
 
 SHARED_KEY_LENGTH = 32
 SIG_LENGTH = 128
 NET_PATH = '../netsim/network/'
 
-# class for managing all aspects of setting up a secure channel
-# accorging to ISO11770 protocol
+# class for managing all aspects of setting up a secure channel for ISO11770 protocol
 class ISOExchangeManager():
 	address_space = ''
 	leader_address = ''
 
+	# set up params, files to be used by ISO11770 protocol
 	def __init__(self, address_space):
 		self.address_space = address_space
 
+		# create new RSA pub/priv keypair for network, will act as cert authority
+		self.key_generator = RSAKeyGenerator()
+		self.key_generator.initialize_ca_keypair()
+
+		# create new RSA pub/priv keypairs and certificates for every participant
+		self.cert_manager = RSACertManager()
+		for addr in self.address_space:
+			self.key_generator.initialize_participant_keypair(addr)
+			self.cert_manager.initialize_participant_cert(addr)
 
 	# main function for sender side of ISO exchange
 	def execute_send(self):
@@ -58,7 +69,11 @@ class ISOExchangeManager():
 			sig_payload = str.encode(recipient_address) + shared_secret + str.encode(dt_string)
 			signature = self.sig_manager.sign(sig_payload)
 					
-			enc_message = self.hybrid_encrypt(recipient_address, shared_secret, dt_string, signature)
+			# payload = A|K|T_Pk|Sigkpk-(B|K|T_Pk
+			payload = str.encode(self.leader_address) + shared_secret + str.encode(dt_string + signature)
+			payload = Padding.pad(payload, AES.block_size)
+
+			enc_message = self.hybrid_encrypt(recipient_address, payload)
 
 			# put enc_message in leader's OUT directory
 			# network.py will move to participant's IN directory later on
@@ -83,7 +98,7 @@ class ISOExchangeManager():
 			if self.sig_manager.verify(ver_payload, b64decode(signature)):
 				print('Participant ' + participant_address + ': received and verified ISO11770 message')
 			else:
-				print('Participant ' + participant_address + ': received a ISO11770 message, ** VERIFICATION FAILED **')
+				print('** ERROR ** Participant ' + participant_address + ' could not verify a ISO11770 message')
 
 			# store private key
 			ofile = open(NET_PATH + participant_address + '/shared_secret.pem', 'w')
@@ -100,20 +115,10 @@ class ISOExchangeManager():
 
 
 	# return PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) using hybrid encryption
-	def hybrid_encrypt(self, recipient_address, shared_secret, dt_string, signature):
-		# payload = A|K|T_Pk|Sigkpk-(B|K|T_Pk
-		payload = str.encode(self.leader_address) + shared_secret + str.encode(dt_string + signature)
-		payload = Padding.pad(payload, AES.block_size)
+	def hybrid_encrypt(self, recipient_address, payload):
 
-		# get the recipient's public key
-		kfile = open('../netsim/network/certs/RSA-cert' + recipient_address + '.pem', 'r')
-		buf = kfile.read()
-		start = buf.find('\n-----RSA-PUBLIC-KEY-----\n') + len('\n-----RSA-PUBLIC-KEY-----\n')
-		pubkey = buf[start:start+219]
-		pubkeystr = '-----BEGIN PUBLIC KEY-----\n' + pubkey + '\n-----END PUBLIC KEY-----\n'
-		kfile.close()
-
-		pubkey = RSA.import_key(pubkeystr)
+		# get public key for recipient
+		pubkey = self.cert_manager.get_pubkey(recipient_address)
 
 		# create an AES-CBC cipher object with random private key
 		private_key = bytes(Random.get_random_bytes(32))

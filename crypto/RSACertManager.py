@@ -25,14 +25,6 @@ class RSACertManager():
         h.update(data)
         return h.digest()
 
-    def sign(self, certdatastr):
-        h = SHA.new()
-        h.update(RSACertManager.md5(certdatastr.encode('ASCII')))
-
-        signature = self.signer.sign(h)
-        return signature
-
-
     def initialize_participant_cert(self, participant_addr):
 
         #define start and end of valid period
@@ -59,7 +51,9 @@ class RSACertManager():
         certdatastr = subject + issuer + serial_num + validity + rsa_pubkey
 
         #generate a signature on the certdata
-        signature = self.sign(certdatastr)
+        h = SHA.new()
+        h.update(RSACertManager.md5(certdatastr.encode('ASCII')))
+        signature = self.signer.sign(h)
 
         #write cert to output file
         ofile = open('../netsim/network/certs/RSA-cert' + participant_addr + '.pem', 'w')
@@ -72,3 +66,50 @@ class RSACertManager():
         self.serial_num_count = self.serial_num_count + 1
 
         print("Certificate generated for Participant " + participant_addr)
+
+
+    def get_pubkey(self, participant_addr):
+
+        if self.verify_participant_cert(participant_addr):
+
+            # get the recipient's public key
+            kfile = open('../netsim/network/certs/RSA-cert' + participant_addr + '.pem', 'r')
+            buf = kfile.read()
+            start = buf.find('\n-----RSA-PUBLIC-KEY-----\n') + len('\n-----RSA-PUBLIC-KEY-----\n')
+            pubkey = buf[start:start+219]
+            pubkeystr = '-----BEGIN PUBLIC KEY-----\n' + pubkey + '\n-----END PUBLIC KEY-----\n'
+            kfile.close()
+            return RSA.import_key(pubkeystr)
+
+        else:
+            print("** ERROR ** Certificate for participant " + participant_addr + " could not be verified")
+            return None
+
+
+    def verify_participant_cert(self, participant_addr):
+
+        # get CA's pubkey
+        kfile = open('../netsim/network/pubkeys/rsa-pubkeyca.pem', 'r')
+        keystr = kfile.read()
+        kfile.close()
+
+        ca_pubkey = RSA.import_key(keystr)
+        verifier = PKCS1_PSS.new(ca_pubkey)
+            
+        certfile = open('../netsim/network/certs/RSA-cert' + participant_addr + '.pem', 'r')
+        buf = certfile.read()
+        certfile.close()
+
+        i = buf.find('\n-----SIGNATURE-----\n')
+        l = len('\n-----SIGNATURE-----\n')
+
+        certdata = buf[:i].encode('ASCII')
+        signature = b64decode(buf[i+l:])
+
+        h = SHA.new()
+        h.update(RSACertManager.md5(certdata))
+
+        if verifier.verify(h, signature):
+            return True
+        else:
+            return False
