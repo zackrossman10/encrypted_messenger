@@ -117,6 +117,14 @@ if not os.path.exists(NET_PATH + '/ca'):
 	os.mkdir(NET_PATH + '/ca')
 	os.mkdir(NET_PATH + '/ca/keypairs')
 
+# create private directories for each participant containing rcvstate, sndstate files
+for addr in ADDR_SPACE:
+	if not os.path.exists(NET_PATH + addr + '/rcvsqn'):
+		os.mkdir(NET_PATH + addr + '/rcvsqn')
+	if not os.path.exists(NET_PATH + addr + '/sndsqn'):
+		os.mkdir(NET_PATH + addr + '/sndsqn')
+
+
 # if program was called with --clean, perform clean-up here
 # go through the addr folders and delete messages
 # go through pubkey folder and delete pubkeys
@@ -128,6 +136,10 @@ if CLEAN:
 		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
 		keypair_dir = NET_PATH + addr + '/keypairs'
 		for f in os.listdir(keypair_dir): os.remove(keypair_dir + '/' + f)
+		sndsqn_dir = NET_PATH + addr + '/sndsqn'
+		for f in os.listdir(sndsqn_dir): os.remove(sndsqn_dir + '/' + f)
+		rcvsqn_dir = NET_PATH + addr + '/rcvsqn'
+		for f in os.listdir(rcvsqn_dir): os.remove(rcvsqn_dir + '/' + f)
 		# os.remove(NET_PATH + addr + '/shared_secret.pem')
 	pubkey_dir = NET_PATH + '/pubkeys'
 	for f in os.listdir(pubkey_dir): os.remove(pubkey_dir + '/' + f)
@@ -135,11 +147,23 @@ if CLEAN:
 	for f in os.listdir(ca_dir): os.remove(ca_dir + '/' + f)
 
 # initialize state (needed for tracking last read messages from OUT dirs)
+# initialize sndstate & rcvstate files
 last_read = {}
 for addr in ADDR_SPACE:
 	out_dir = NET_PATH + addr + '/OUT'
 	msgs = sorted(os.listdir(out_dir))
 	last_read[addr] = len(msgs) - 1
+
+	#initialize rcvstate.txt files, one for every participant
+	for snd_addr in ADDR_SPACE:
+		ofile = open(NET_PATH + addr + '/rcvsqn/rcvstate'+snd_addr+'.txt', 'w')
+		ofile.write('0')
+		ofile.close()
+
+	#initialize a single sndstate.txt file
+	ofile = open(NET_PATH + addr + '/sndsqn/sndstate'+addr+'.txt', 'w')
+	ofile.write('0')
+	ofile.close()
 
 #set up a secure channel
 iso_manager = ISOExchangeManager(ADDR_SPACE)
@@ -156,6 +180,8 @@ iso_manager.execute_receive()
 #create unique encryption and mac keys for each party member
 Mac_Encryption_manager = MACandEncryptionKeyManager()
 Mac_Encryption_manager.create_mac_encry_key(ADDR_SPACE)
+Mac_Encryption_manager.update_sndsqn('A')
+Mac_Encryption_manager.update_rcvsqn('B', 'A', 1)
 
 # main loop
 print('Main loop started, quit with pressing CTRL-C...')
