@@ -25,16 +25,10 @@ class CBCMessageEncrypter():
 
         efile = open('../netsim/network/' + sender + '/encrption_key.pem', 'rb')
         enckey = efile.read()
-        print(type(enckey))
-        #enckey = bytes(enckey, 'utf-8')
+        #print(type(enckey))
 
         mfile = open('../netsim/network/' + sender + '/mac_key.pem', 'rb')
         mackey = mfile.read()
-        print(type(mackey))
-        #mackey = bytes(mackey, 'utf-8')
-
-        # enckey = open('../netsim/network/' + 'A' + '/encrption_key.pem', 'rb')
-        # mackey = open('../netsim/network/' + 'A' + '/mac_key.pem', 'rb')
 
         # compute payload_length, padding_length, and padding
         mac_length = 32  # SHA256 hash value is 32 bytes long
