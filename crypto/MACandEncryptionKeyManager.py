@@ -1,6 +1,6 @@
 import sys, getopt
 from Crypto.Cipher import AES
-from Crypto.Hash import SHA256, HMAC
+from Crypto.Hash import SHA1, HMAC, MD5
 from Crypto import Random
 #import pem
 
@@ -18,14 +18,20 @@ class MACandEncryptionKeyManager():
             SS = ifile.read()
 
             #creating unique mac key
-            Km = HMAC.new(SS, digestmod=SHA256)
+            Km = HMAC.new(SS, digestmod=MD5)
+            #Km.digest_size = 32
             Km = Km.update(b'Mac-Key')
             Km = Km.hexdigest()
 
             #creating unique encryption key
-            Ke = HMAC.new(SS, digestmod=SHA256)
+            Ke = HMAC.new(SS, digestmod=MD5)
+            #Ke.digest_size = 32
             Ke = Ke.update(b'Encryption-Key')
             Ke = Ke.hexdigest()
+
+            # print(Km)
+            # print(len(Km))
+            # print(SS)
 
             ofile = open('../netsim/network/' + dst + '/encrption_key.pem', 'w')
             ofile.write(Ke)

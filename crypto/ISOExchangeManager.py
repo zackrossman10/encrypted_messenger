@@ -102,7 +102,7 @@ class ISOExchangeManager():
 
 			# store private key
 			ofile = open(NET_PATH + participant_address + '/shared_secret.pem', 'w')
-			ofile.write(b64encode(signature).decode('ASCII'))
+			ofile.write(b64encode(shared_secret).decode('ASCII'))
 			ofile.close()
 
 			# messages related to ISO protocol for security reasons

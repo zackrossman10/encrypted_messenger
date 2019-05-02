@@ -19,11 +19,11 @@ An example for calling receive_msg() in blocking mode is the following:
 
 from netinterface import network_interface
 netif = network_interface(NET_PATH, OWN_ADDR)		# create network interface netif
-status, msg = netif.receive_msg(blocking=True)		# when returns, status is True and msg contains a message 
+status, msg = netif.receive_msg(blocking=True)		# when returns, status is True and msg contains a message
 print(msg)
 
 An example for calling receive_msg() in non-blocking mode is the following:
- 
+
 from netinterface import network_interface
 netif = network_interface(NET_PATH, OWN_ADDR)		# create network interface netif
 status, msg = netif.receive_msg(blocking=False)    
@@ -53,15 +53,15 @@ Examples:
 python3 network.py
 	running the network simulation with default path './' and default address space 'ABC' (i.e., addresses A, B, and C);
 	no clean-up, so messages from a previous run remain in the folders of path './'
-	
+
 python3 network.py -p './network/' -a 'ABCDE'
 	running the network simulation such that it looks for files representing messages on path './network/'
 	and allowing five addresses to be used A, B, C, D, and E;
 	no clean-up, so messages from a previous run remain in the folders of path './network/'
-	
+
 python3 network.py -p './network/' -a 'ABCDE' --clean
 	same as above but cleaning-up all folders on path './network/'
-	
+
 Note: Programs using the network_interface class should provide the same network path to the constructor of network_interface as the network path used to start the network simulation program network.py. Also, programs should create network interfaces with addresses that are contained in the address space provided as input to the network simulation program network.py.
 
 
