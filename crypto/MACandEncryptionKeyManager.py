@@ -23,7 +23,6 @@ class MACandEncryptionKeyManager():
             Km = Km.update(b'Mac-Key')
             Km = Km.hexdigest()
 
-
             #creating unique encryption key
             Ke = HMAC.new(SS, digestmod=MD5)
             #Ke.digest_size = 32
@@ -31,7 +30,7 @@ class MACandEncryptionKeyManager():
             Ke = Ke.hexdigest()
 
 
-            ofile = open('../netsim/network/' + dst + '/encrption_key.pem', 'w')
+            ofile = open('../netsim/network/' + dst + '/encryption_key.pem', 'w')
             ofile.write(Ke)
             ofile.close()
 
