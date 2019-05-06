@@ -29,7 +29,6 @@ class MACandEncryptionKeyManager():
             Ke = Ke.update(b'Encryption-Key')
             Ke = Ke.hexdigest()
 
-
             ofile = open('../netsim/network/' + dst + '/encryption_key.pem', 'w')
             ofile.write(Ke)
             ofile.close()
@@ -38,7 +37,7 @@ class MACandEncryptionKeyManager():
             ofile.write(Km)
             ofile.close()
 
-            print("Unique Mac and Encryption keys created party member "+ dst)
+            print("Mac and Encryption keys created party member "+ dst)
 
     # increment a participant's sndsqn number by 1
     def update_sndsqn(self, snd_address):
@@ -88,5 +87,5 @@ class MACandEncryptionKeyManager():
             print('ERROR** Invalid sequence number received by ' + rcv_address)
             return False
 
-# test = MACandEncryptionKeyManager()
-# test.create_mac_encry_key('ABCDE')
+test = MACandEncryptionKeyManager()
+test.create_mac_encry_key('ABCDE')
