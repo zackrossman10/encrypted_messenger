@@ -51,12 +51,12 @@ from CBCMessageEncrypter import CBCMessageEncrypter
 
 class CBCMessageVerification():
 
-    def decryptMessage(self, sender, receiver, msg):
+    def decryptMessage(self, receiver, msg):
         #CHANGE
-        rcvsqn = 0
-        sndsqn = 1
+        # rcvsqn = 0
+        # sndsqn = 1
 
-        efile = open('../netsim/network/' + receiver + '/encrption_key.pem', 'rb')
+        efile = open('../netsim/network/' + receiver + '/encryption_key.pem', 'rb')
         enckey = efile.read()
         enckey = bytes.fromhex(enckey.decode('utf-8'))
 
@@ -86,9 +86,20 @@ class CBCMessageVerification():
             print("Warning: Message length value in header is wrong!")
             print("Processing is continued nevertheless...")
 
+        # sndsqn = int.from_bytes(header_type, byteorder='big')
+        # rcvsqn = int.from_bytes(rec, byteorder='big')
+
+        rcvsqnFile = open('../netsim/network/' + header_type + '/rvcsqn/rcvstate' + h + '.txt' , 'rb')
+        rcvsqn = rcvsqnFile.read()
+        rcvsqnFile.close()
+
+        sndsqnFile = open('../netsim/network/' + receiver + '/sndsqn/sndstate' + receiver + '.txt' , 'rb')
+        sndsqn = sndsqnFile.read()
+        sndsqnFile.close()
+
         # check the sequence number
         print("Expecting sequence number " + str(rcvsqn + 1) + " or larger...")
-        sndsqn = int.from_bytes(header_sqn, byteorder='big')
+        sndsqn = int.from_bytes(sndsqn, byteorder='big')
         if (rcvsqn >= sndsqn):
             print("Error: Message sequence number is too old!")
             print("Processing completed.")
@@ -147,7 +158,7 @@ class CBCMessageVerification():
         # print("Receiving state is saved.")
         # print("Processing completed.")
 
-# test = CBCMessageVerification()
-# encrypter = CBCMessageEncrypter()
-# testString = 'this is a long test that we run here'
-# test.decryptMessage('A','B', encrypter.encryptMessage('A', testString))
+test = CBCMessageVerification()
+encrypter = CBCMessageEncrypter()
+testString = 'this is a long test that we run here'
+test.decryptMessage('A', encrypter.encryptMessage('A', testString))

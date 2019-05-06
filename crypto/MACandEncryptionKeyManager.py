@@ -87,5 +87,5 @@ class MACandEncryptionKeyManager():
             print('ERROR** Invalid sequence number received by ' + rcv_address)
             return False
 
-# test = MACandEncryptionKeyManager()
-# test.create_mac_encry_key('ABCDE')
+test = MACandEncryptionKeyManager()
+test.create_mac_encry_key('ABCDE')
