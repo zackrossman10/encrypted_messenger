@@ -35,6 +35,7 @@ class ISOExchangeManager():
 
 		self.cert_manager = RSACertManager()
 
+
 		# if needed, create RSA pub/priv keypairs and certificates for every participant
 		for addr in self.address_space:
 			if not os.path.exists(NET_PATH + addr + '/keypairs/rsa-key.pem'):

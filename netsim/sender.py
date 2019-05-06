@@ -3,6 +3,8 @@
 
 import os, sys, getopt, time
 from netinterface import network_interface
+from MACandEncryptionKeyManager import MACandEncryptionKeyManager
+from CBCMessageEncrypter import CBCMessageEncrypter
 
 NET_PATH = './'
 OWN_ADDR = 'A'
@@ -40,11 +42,16 @@ if OWN_ADDR not in network_interface.addr_space:
 
 # main loop
 netif = network_interface(NET_PATH, OWN_ADDR)
+mac_enc_manager = MACandEncryptionKeyManager()
+msg_encrypter = CBCMessageEncrypter
 print('Main loop started...')
 while True:
 	msg = input('Type a message: ')
+	# enc_msg = 
 	dst = input('Type a destination address: ')
 
 	netif.send_msg(dst, msg.encode('utf-8'))
+	mac_enc_manager.update_sndsqn(OWN_ADDR)
+
 
 	if input('Continue? (y/n): ') == 'n': break
