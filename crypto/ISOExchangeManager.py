@@ -26,22 +26,37 @@ class ISOExchangeManager():
 	def __init__(self, address_space):
 		self.address_space = address_space
 
-		# create new RSA pub/priv keypair for network, will act as cert authority
-		self.key_generator = RSAKeyGenerator()
-		self.key_generator.initialize_ca_keypair()
+		# if needed, create RSA pub/priv keypair for network, will act as cert authority
+		if not os.path.exists(NET_PATH + '/ca/keypairs/rsa-key.pem'):
+			self.key_generator = RSAKeyGenerator()
+			self.key_generator.initialize_ca_keypair()
+		else:
+			print("RSA keypair already exist for CA")
 
-		# create new RSA pub/priv keypairs and certificates for every participant
 		self.cert_manager = RSACertManager()
-		for addr in self.address_space:
-			self.key_generator.initialize_participant_keypair(addr)
-			self.cert_manager.initialize_participant_cert(addr)
 
-	# main function for sender side of ISO exchange
+		# if needed, create RSA pub/priv keypairs and certificates for every participant
+		for addr in self.address_space:
+			if not os.path.exists(NET_PATH + addr + '/keypairs/rsa-key.pem'):
+				self.key_generator.initialize_participant_keypair(addr)
+				self.cert_manager.initialize_participant_cert(addr)
+			else:
+				print("RSA keypair already exist for Participant " + addr)
+
+	# main function for distributing shared secret
 	def execute_send(self):
-		self.elect_leader()
-		self.sig_manager = RSASigManager(self.leader_address)
+		self.leader_addr = self.elect_leader()
+		self.sig_manager = RSASigManager(self.leader_addr)
 		shared_secret = Random.get_random_bytes(SHARED_KEY_LENGTH)
-		self.distribute_shared_secret(shared_secret)
+		iso_msgs = self.compose_ISO_msgs(shared_secret)
+
+		# instantiate network for distribution
+		# put enc_message in leader's OUT directory
+		netif = network_interface(NET_PATH, self.leader_addr)
+
+		for recipient_addr in iso_msgs:
+			iso_msg = iso_msgs[recipient_addr]
+			netif.send_msg(recipient_addr, iso_msg)
 
 
 	# elect a random leader who (later) composes, sends PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk))
@@ -49,37 +64,37 @@ class ISOExchangeManager():
 
 		# randomly choose leader from address space
 		leader_index = random.randint(0, len(self.address_space)-1)
-		self.leader_address = self.address_space[leader_index]
+		leader_addr = self.address_space[leader_index]
 
-		print('Elected leader: ' + self.leader_address)
+		print('Elected leader: ' + leader_addr)
+
+		return leader_addr
 
 
-	# compose and send PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) for each participant
-	def distribute_shared_secret(self, shared_secret):
+	# compose PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) for each participant
+	def compose_ISO_msgs(self, shared_secret):
 
 		# generate timestamp dd/mm/YY H:M:S
 		now = datetime.datetime.now()
 		dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 
-		# instantiate network for distribution
-		netif = network_interface(NET_PATH, self.leader_address)
+		iso_msgs = {}
 
 		# compose and send PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) for each participant
-		for recipient_address in self.address_space:
-			sig_payload = str.encode(recipient_address) + shared_secret + str.encode(dt_string)
+		for recipient_addr in self.address_space:
+			sig_payload = str.encode(recipient_addr) + shared_secret + str.encode(dt_string)
 			signature = self.sig_manager.sign(sig_payload)
 
 			# payload = A|K|T_Pk|Sigkpk-(B|K|T_Pk
-			payload = str.encode(self.leader_address) + shared_secret + str.encode(dt_string + signature)
+			payload = str.encode(self.leader_addr) + shared_secret + str.encode(dt_string + signature)
 			payload = Padding.pad(payload, AES.block_size)
 
-			enc_message = self.hybrid_encrypt(recipient_address, payload)
-
-			# put enc_message in leader's OUT directory
-			# network.py will move to participant's IN directory later on
-			netif.send_msg(recipient_address, enc_message)
+			iso_msgs[recipient_addr] = self.hybrid_encrypt(recipient_addr, payload)
 
 		print('Composed ISO11770 messages for each participant')
+
+		return iso_msgs
+
 
 	# main function for receiver side of ISO exchange
 	def execute_receive(self):
@@ -110,8 +125,6 @@ class ISOExchangeManager():
 			receiving_dir = NET_PATH + participant_address + '/IN'
 			for f in os.listdir(sending_dir): os.remove(sending_dir + '/' + f)
 			for f in os.listdir(receiving_dir): os.remove(receiving_dir + '/' + f)
-
-		print("Ready for chat to begin")
 
 
 	# return PubEnckpi+(A|K|T_Pk|Sigkpk-(B|K|T_Pk)) using hybrid encryption

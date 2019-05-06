@@ -127,24 +127,24 @@ for addr in ADDR_SPACE:
 
 # if program was called with --clean, perform clean-up here
 # go through the addr folders and delete messages
-# go through pubkey folder and delete pubkeys
+# and all shared secrets, encryption keys, and mac keys
 if CLEAN:
 	for addr in ADDR_SPACE:
 		in_dir = NET_PATH + addr + '/IN'
 		for f in os.listdir(in_dir): os.remove(in_dir + '/' + f)
 		out_dir = NET_PATH + addr + '/OUT'
 		for f in os.listdir(out_dir): os.remove(out_dir + '/' + f)
-		keypair_dir = NET_PATH + addr + '/keypairs'
-		for f in os.listdir(keypair_dir): os.remove(keypair_dir + '/' + f)
 		sndsqn_dir = NET_PATH + addr + '/sndsqn'
 		for f in os.listdir(sndsqn_dir): os.remove(sndsqn_dir + '/' + f)
 		rcvsqn_dir = NET_PATH + addr + '/rcvsqn'
 		for f in os.listdir(rcvsqn_dir): os.remove(rcvsqn_dir + '/' + f)
-		# os.remove(NET_PATH + addr + '/shared_secret.pem')
-	pubkey_dir = NET_PATH + '/pubkeys'
-	for f in os.listdir(pubkey_dir): os.remove(pubkey_dir + '/' + f)
-	ca_dir = NET_PATH + 'ca/keypairs'
-	for f in os.listdir(ca_dir): os.remove(ca_dir + '/' + f)
+		if os.path.exists(NET_PATH + addr + '/shared_secret.pem'):
+			os.remove(NET_PATH + addr + '/shared_secret.pem')
+		if os.path.exists(NET_PATH + addr + '/encryption_key.pem'):
+			os.remove(NET_PATH + addr + '/encryption_key.pem')
+		if os.path.exists(NET_PATH + addr + '/mac_key.pem'):
+			os.remove(NET_PATH + addr + '/mac_key.pem')
+
 
 # initialize state (needed for tracking last read messages from OUT dirs)
 # initialize sndstate & rcvstate files
@@ -165,14 +165,14 @@ for addr in ADDR_SPACE:
 	ofile.write('0')
 	ofile.close()
 
-#set up a secure channel
+#distribute shared secret amongst participants
 iso_manager = ISOExchangeManager(ADDR_SPACE)
 iso_manager.execute_send()
 
-# network moves messages from leader's OUT directory
+# moves messages from leader's OUT directory
 # to participants' IN directories
 for dst in ADDR_SPACE:
-	msg, dsts = read_msg(iso_manager.leader_address)
+	msg, dsts = read_msg(iso_manager.leader_addr)
 	write_msg(dsts, msg)
 
 iso_manager.execute_receive()

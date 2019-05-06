@@ -23,17 +23,13 @@ class MACandEncryptionKeyManager():
             Km = Km.update(b'Mac-Key')
             Km = Km.hexdigest()
 
-
             #creating unique encryption key
             Ke = HMAC.new(SS, digestmod=MD5)
             #Ke.digest_size = 32
             Ke = Ke.update(b'Encryption-Key')
             Ke = Ke.hexdigest()
 
-            print(Ke)
-            print('-----\n')
-            print(Km)
-            ofile = open('../netsim/network/' + dst + '/encrption_key.pem', 'w')
+            ofile = open('../netsim/network/' + dst + '/encryption_key.pem', 'w')
             ofile.write(Ke)
             ofile.close()
 
@@ -91,5 +87,5 @@ class MACandEncryptionKeyManager():
             print('ERROR** Invalid sequence number received by ' + rcv_address)
             return False
 
-test = MACandEncryptionKeyManager()
-test.create_mac_encry_key('ABCDE')
+# test = MACandEncryptionKeyManager()
+# test.create_mac_encry_key('ABCDE')

@@ -147,7 +147,7 @@ class CBCMessageVerification():
         # print("Receiving state is saved.")
         # print("Processing completed.")
 
-test = CBCMessageVerification()
-encrypter = CBCMessageEncrypter()
-testString = 'this is a long test that we run here'
-test.decryptMessage('A','B', encrypter.encryptMessage('A', testString))
+# test = CBCMessageVerification()
+# encrypter = CBCMessageEncrypter()
+# testString = 'this is a long test that we run here'
+# test.decryptMessage('A','B', encrypter.encryptMessage('A', testString))
