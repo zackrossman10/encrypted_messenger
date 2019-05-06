@@ -9,11 +9,11 @@ class network_interface:
 	own_addr = ''
 	net_path = ''
 	last_read = -1
-	
+
 	def __init__(self, path, addr):
 		self.net_path = path
 		self.own_addr = addr
-        
+
 		addr_dir = self.net_path + self.own_addr
 		if not os.path.exists(addr_dir):
 			os.mkdir(addr_dir)
@@ -24,7 +24,7 @@ class network_interface:
 		msgs = sorted(os.listdir(in_dir))
 		self.last_read = len(msgs) - 1
 
-	
+
 	def send_msg(self, dst, msg):
 		out_dir = self.net_path + self.own_addr + '/OUT'
 		msgs = sorted(os.listdir(out_dir))
@@ -34,7 +34,7 @@ class network_interface:
 			next_msg = (int.from_bytes(bytes.fromhex(last_msg), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
 		else:
 			next_msg = '0000'
-		
+
 		next_msg += '--' + dst
 		with open(out_dir + '/' + next_msg, 'wb') as f: f.write(msg)
 
@@ -49,11 +49,10 @@ class network_interface:
 
 		while True:
 			msgs = sorted(os.listdir(in_dir))
-			if len(msgs) - 1 > self.last_read: 
+			if len(msgs) - 1 > self.last_read:
 				with open(in_dir + '/' + msgs[self.last_read + 1], 'rb') as f: msg = f.read()
 				status = True
 				self.last_read += 1
 
 			if not blocking or status: return status, msg
 			else: time.sleep(self.timeout)
-			

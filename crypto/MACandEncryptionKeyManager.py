@@ -81,11 +81,16 @@ class MACandEncryptionKeyManager():
 
             # if valid sqn_number, set rcvsqn = sndsqn
             rcvsqn_number = sndsqn_number
-            update_rcvsqn(rcv_address, snd_address, rcvsqn_number)
+            #update_rcvsqn(rcv_address, snd_address, rcvsqn_number)
+            rcvsqn_file = '../netsim/network/' + rcv_address + '/rcvsqn/rcvstate'+snd_address+'.txt'
+            open(rcvsqn_file, 'w').close()
+            upadted_rcv_file = open(rcvsqn_file, 'w')
+            upadted_rcv_file.write(str(rcvsqn_number))
+            upadted_rcv_file.close()
             return True
         else:
             print('ERROR** Invalid sequence number received by ' + rcv_address)
             return False
 
-test = MACandEncryptionKeyManager()
-test.create_mac_encry_key('ABCDE')
+# test = MACandEncryptionKeyManager()
+# test.create_mac_encry_key('ABCDE')

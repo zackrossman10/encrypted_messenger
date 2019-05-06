@@ -3,6 +3,9 @@
 
 import os, sys, getopt, time
 from netinterface import network_interface
+sys.path.insert(0, '../crypto/')
+from CBCMessageVerification import CBCMessageVerification
+
 
 NET_PATH = './'
 OWN_ADDR = 'B'
@@ -40,6 +43,7 @@ if OWN_ADDR not in network_interface.addr_space:
 
 # main loop
 netif = network_interface(NET_PATH, OWN_ADDR)
+msg_decrypter = CBCMessageVerification()
 print('Main loop started...')
 while True:
 # Calling receive_msg() in non-blocking mode ... 
@@ -48,6 +52,8 @@ while True:
 #	else: time.sleep(2)        # otherwise msg is empty
 
 # Calling receive_msg() in blocking mode ...
-	status, msg = netif.receive_msg(blocking=True)      # when returns, status is True and msg contains a message 
+	status, enc_msg = netif.receive_msg(blocking=True)      # when returns, status is True and msg contains a message 
+	print("Hello")
+	msg = msg_decrypter.decryptMessage(OWN_ADDR, enc_msg)
 	print(msg.decode('utf-8'))
     
