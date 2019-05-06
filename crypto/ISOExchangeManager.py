@@ -115,6 +115,7 @@ class ISOExchangeManager():
 				print('Participant ' + participant_address + ': received and verified ISO11770 message')
 			else:
 				print('** ERROR ** Participant ' + participant_address + ' could not verify a ISO11770 message')
+				sys.exit(1)
 
 			# store private key
 			ofile = open(NET_PATH + participant_address + '/shared_secret.pem', 'w')

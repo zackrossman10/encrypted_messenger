@@ -23,7 +23,7 @@ class CBCMessageEncrypter():
         #CHANGE
         sndsqn = 1
 
-        efile = open('../netsim/network/' + sender + '/encrption_key.pem', 'rb')
+        efile = open('../netsim/network/' + sender + '/encryption_key.pem', 'rb')
         enckey = efile.read()
         enckey = bytes.fromhex(enckey.decode('utf-8'))
         #print(enckey.decode('utf-8'))
@@ -42,7 +42,7 @@ class CBCMessageEncrypter():
 
         # create header
         header_version = b'\x03\x06' # protocol version 3.6
-        header_type = b'\x01'    # message type 1
+        header_type = str.encode(sender)    # message sender
         header_length = msg_length.to_bytes(2, byteorder='big') # message length (encoded on 2 bytes)
         header_sqn = (sndsqn + 1).to_bytes(4, byteorder='big')  # next message sequence number (encoded on 4 bytes)
         header = header_version + header_type + header_length + header_sqn
