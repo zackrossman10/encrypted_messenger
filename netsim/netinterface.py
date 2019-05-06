@@ -29,13 +29,14 @@ class network_interface:
 		out_dir = self.net_path + self.own_addr + '/OUT'
 		msgs = sorted(os.listdir(out_dir))
 
-		if len(msgs) > 0:
-			last_msg = msgs[-1].split('--')[0]
-			next_msg = (int.from_bytes(bytes.fromhex(last_msg), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
-		else:
-			next_msg = '0000'
-
+		next_msg = str(len(sorted(os.listdir(out_dir))))
+		# if len(msgs) > 0:
+		# 	last_msg = msgs[-1].split('--')[0]
+		# 	next_msg = (int.from_bytes(bytes.fromhex(last_msg), byteorder='big') + 1).to_bytes(2, byteorder='big').hex()
+		# else:
+		# 	next_msg = '0000'
 		next_msg += '--' + dst
+		print(next_msg)
 		with open(out_dir + '/' + next_msg, 'wb') as f: f.write(msg)
 
 		return True

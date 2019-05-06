@@ -25,6 +25,7 @@ def read_msg(src):
 	with open(out_dir + '/' + next_msg, 'rb') as f: msg = f.read()
 
 	last_read[src] += 1
+	print('new message')
 	return msg, dsts
 
 
@@ -180,8 +181,6 @@ iso_manager.execute_receive()
 #create unique encryption and mac keys for each party member
 Mac_Encryption_manager = MACandEncryptionKeyManager()
 Mac_Encryption_manager.create_mac_encry_key(ADDR_SPACE)
-# Mac_Encryption_manager.update_sndsqn('A')
-# Mac_Encryption_manager.update_rcvsqn('B', 'A', 1)
 
 # main loop
 print('Main loop started, quit with pressing CTRL-C...')

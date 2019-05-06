@@ -59,6 +59,9 @@ class MACandEncryptionKeyManager():
         sndsqn_number = ifile.read()
         ifile.close()
 
+        print('Sender sequence number updated to ' + str(sndsqn_number))
+
+
 
     # update a participant's rcvsqn number for a particular sender
     def update_rcvsqn(self, rcv_address, snd_address, rcvsqn_number):
@@ -67,6 +70,7 @@ class MACandEncryptionKeyManager():
         upadted_rcv_file = open(rcvsqn_file, 'w')
         upadted_rcv_file.write(str(rcvsqn_number))
         upadted_rcv_file.close()
+        print('Receiver sequence number updated')
 
 
     # determine whether sqn number is valid
@@ -78,19 +82,17 @@ class MACandEncryptionKeyManager():
 
         # explicit sequence numbering
         if int(sndsqn_number) > rcvsqn_number:
+            print('Message sequence number validated')
 
             # if valid sqn_number, set rcvsqn = sndsqn
             rcvsqn_number = sndsqn_number
-            #update_rcvsqn(rcv_address, snd_address, rcvsqn_number)
-            rcvsqn_file = '../netsim/network/' + rcv_address + '/rcvsqn/rcvstate'+snd_address+'.txt'
-            open(rcvsqn_file, 'w').close()
-            upadted_rcv_file = open(rcvsqn_file, 'w')
-            upadted_rcv_file.write(str(rcvsqn_number))
-            upadted_rcv_file.close()
-            return True
+            self.update_rcvsqn(rcv_address, snd_address, rcvsqn_number)
+            # rcvsqn_file = '../netsim/network/' + rcv_address + '/rcvsqn/rcvstate'+snd_address+'.txt'
+            # open(rcvsqn_file, 'w').close()
+            # upadted_rcv_file = open(rcvsqn_file, 'w')
+            # upadted_rcv_file.write(str(rcvsqn_number))
+            # upadted_rcv_file.close()
+            
         else:
-            print('ERROR** Invalid sequence number received by ' + rcv_address)
-            return False
-
-# test = MACandEncryptionKeyManager()
-# test.create_mac_encry_key('ABCDE')
+            print('Error: Sequence number not valid for receiver ' + rcv_address)
+            sys.exit(1)

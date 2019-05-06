@@ -54,5 +54,4 @@ while True:
 	netif.send_msg(dst, enc_msg)
 	mac_enc_manager.update_sndsqn(OWN_ADDR)
 
-
 	if input('Continue? (y/n): ') == 'n': break

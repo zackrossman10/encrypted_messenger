@@ -47,6 +47,7 @@ class CBCMessageEncrypter():
         # create header
         header_version = b'\x03\x06' # protocol version 3.6
         header_type = str.encode(sender)    # message sender
+        # header_type = b'\x01'    # message sender
         header_length = msg_length.to_bytes(2, byteorder='big') # message length (encoded on 2 bytes)
         header_sqn = (int(sndsqn.decode('utf-8')) + 1).to_bytes(4, byteorder='big')  # next message sequence number (encoded on 4 bytes)
         header = header_version + header_type + header_length + header_sqn

@@ -60,14 +60,11 @@ class CBCMessageVerification():
         #rcvsqn = int.from_bytes(rcvsqn, byteorder = 'big')
         # print(type(rcvsqn))
         # print(rcvsqn)
-        print('R: ' + rcvsqn + '--- Receiver: ' + receiver)
-        print('S: ' + sndsqn + '--- Sender: ' + sender)
+        print('R#: ' + rcvsqn + '--- Receiver: ' + receiver)
+        print('S#: ' + sndsqn + '--- Sender: ' + sender)
 
         Mac_Encryption_manager = MACandEncryptionKeyManager()
-        Mac_Encryption_manager.update_sndsqn(sender)
-        #Mac_Encryption_manager.update_rcvsqn(receiver, sender, rcvsqn)
-        if (Mac_Encryption_manager.check_sqn_number(receiver, sender, sndsqn) == False):
-            sys.exit(1)
+        Mac_Encryption_manager.check_sqn_number(receiver, sender, sndsqn)
 
         # print("Expecting sequence number " + str(int(rcvsqn) + 1) + " or larger...")
         # if (rcvsqn >= sndsqn):
