@@ -37,7 +37,7 @@ class MACandEncryptionKeyManager():
             ofile.write(Km)
             ofile.close()
 
-            print("Mac and Encryption keys created party member "+ dst)
+            print("Mac and Encryption keys created for Participant "+ dst)
 
     # increment a participant's sndsqn number by 1
     def update_sndsqn(self, snd_address):
@@ -59,8 +59,7 @@ class MACandEncryptionKeyManager():
         sndsqn_number = ifile.read()
         ifile.close()
 
-        print('Sender sequence number updated to ' + str(sndsqn_number))
-
+        # print('Sender sequence number updated to ' + str(sndsqn_number))
 
 
     # update a participant's rcvsqn number for a particular sender

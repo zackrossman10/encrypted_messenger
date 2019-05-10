@@ -36,7 +36,6 @@ class network_interface:
 		# else:
 		# 	next_msg = '0000'
 		next_msg += '--' + dst
-		print(next_msg)
 		with open(out_dir + '/' + next_msg, 'wb') as f: f.write(msg)
 
 		return True

@@ -25,7 +25,6 @@ def read_msg(src):
 	with open(out_dir + '/' + next_msg, 'rb') as f: msg = f.read()
 
 	last_read[src] += 1
-	print('new message')
 	return msg, dsts
 
 
@@ -188,7 +187,7 @@ while True:
 	time.sleep(TIMEOUT)
 	for src in ADDR_SPACE:
 		msg, dsts = read_msg(src)                               # read outgoing message
-		if dsts != '':											# if read returned a message...
+		if dsts != '':
 			if dsts == '+': dsts = ADDR_SPACE					# handle broadcast address +
 			for dst in dsts:									# for all destinations of the message...
 				if dst in ADDR_SPACE:							# destination must be a valid address

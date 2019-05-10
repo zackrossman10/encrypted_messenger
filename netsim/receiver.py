@@ -54,5 +54,6 @@ while True:
 # Calling receive_msg() in blocking mode ...
 	status, enc_msg = netif.receive_msg(blocking=True)      # when returns, status is True and msg contains a message 
 	msg = msg_decrypter.decryptMessage(OWN_ADDR, enc_msg)
+	print('MESSAGE:')
 	print(msg.decode('utf-8'))
     

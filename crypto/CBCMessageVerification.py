@@ -56,12 +56,8 @@ class CBCMessageVerification():
         sndsqnFile.close()
 
         # check the sequence number
-        #print(type(int.from_bytes(rcvsqn, byteorder = 'big')))
-        #rcvsqn = int.from_bytes(rcvsqn, byteorder = 'big')
-        # print(type(rcvsqn))
-        # print(rcvsqn)
-        print('R#: ' + rcvsqn + '--- Receiver: ' + receiver)
-        print('S#: ' + sndsqn + '--- Sender: ' + sender)
+        print('Receiver: ' + receiver + ' -- sqn#: ' + rcvsqn)
+        print('Sender: ' + sender + ' -- sqn#: ' + sndsqn)
 
         Mac_Encryption_manager = MACandEncryptionKeyManager()
         Mac_Encryption_manager.check_sqn_number(receiver, sender, sndsqn)
