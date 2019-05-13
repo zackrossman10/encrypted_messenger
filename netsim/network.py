@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #network.py
 
-import os, sys, getopt, time
+import os, sys, getopt, time, shutil
 sys.path.insert(0, '../crypto/')
 from ISOExchangeManager import ISOExchangeManager
 from MACandEncryptionKeyManager import MACandEncryptionKeyManager
@@ -9,6 +9,7 @@ from MACandEncryptionKeyManager import MACandEncryptionKeyManager
 NET_PATH = './network/'
 ADDR_SPACE = 'ABCDE'
 CLEAN = False
+WIPE = False
 TIMEOUT = 0.500  # 500 millisec
 
 
@@ -49,18 +50,14 @@ def write_msg(dst, msg):
 # ------------
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], shortopts='hp:a:c', longopts=['help', 'path=', 'addrspace=', 'clean'])
+	opts, args = getopt.getopt(sys.argv[1:], shortopts='hp:a:c', longopts=['help', 'path=', 'addrspace=', 'clean', 'wipe'])
 except getopt.GetoptError:
-	print('Usage: python network.py -p <network path> -a <address space> [--clean]')
+	print('Usage: python network.py -p <network path> -a <address space> [--clean | --wipe]')
 	sys.exit(1)
-
-#if len(opts) == 0:
-# 	print('Usage: python network.py -p <network path> -a <address space> [--clean]')
-# 	sys.exit(1)
 
 for opt, arg in opts:
 	if opt == '-h' or opt == '--help':
-		print('Usage: python network.py -p <network path> -a <address space> [--clean]')
+		print('Usage: python network.py -p <network path> -a <address space> [--clean | --wipe]')
 		sys.exit(0)
 	elif opt == '-p' or opt == '--path':
 		NET_PATH = arg
@@ -68,6 +65,8 @@ for opt, arg in opts:
 		ADDR_SPACE = arg
 	elif opt == '-c' or opt == '--clean':
 		CLEAN = True
+	elif opt == '-c' or opt == '--wipe':
+		WIPE = True
 
 ADDR_SPACE = ''.join(sorted(set(ADDR_SPACE)))
 
@@ -85,6 +84,14 @@ if (NET_PATH[-1] != '/') and (NET_PATH[-1] != '\\'): NET_PATH += '/'
 if not os.access(NET_PATH, os.F_OK):
 	print('Error: Cannot access path ' + NET_PATH)
 	sys.exit(1)
+
+# wipe all network files without creating a new network instance
+if WIPE:
+	shutil.rmtree(NET_PATH)
+	os.mkdir('../netsim/network')
+	print('Network data wiped, goodbye')
+	sys.exit(1)
+	
 
 print('--------------------------------------------')
 print('Network is running with the following input:')
@@ -127,7 +134,7 @@ for addr in ADDR_SPACE:
 
 # if program was called with --clean, perform clean-up here
 # go through the addr folders and delete messages
-# and all shared secrets, encryption keys, and mac keys
+# and all shared secrets, encryption keys, mac keys, and rcv/sndsqn files
 if CLEAN:
 	for addr in ADDR_SPACE:
 		in_dir = NET_PATH + addr + '/IN'

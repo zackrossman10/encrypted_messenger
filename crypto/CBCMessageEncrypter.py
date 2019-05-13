@@ -9,28 +9,16 @@ outputfile = ""
 
 
 class CBCMessageEncrypter():
-    # sender = ''
-    # receiver = ''
-    # payload = ""
-    #
-    # def __init__(self, sender, receiver, payload):
-    #     self.sender = sender
-    #     self.receiver = receiver
-    #     self.payload = payload
 
     def encryptMessage(self, sender, payload):
-
-        #CHANGE
 
         sndsqnFile = open('../netsim/network/' + sender + '/sndsqn/sndstate' + sender + '.txt' , 'rb')
         sndsqn = sndsqnFile.read()
         sndsqnFile.close()
-        #print(type(int(sndsqn.decode('utf-8'))))
 
         efile = open('../netsim/network/' + sender + '/encryption_key.pem', 'rb')
         enckey = efile.read()
         enckey = bytes.fromhex(enckey.decode('utf-8'))
-        #print(enckey.decode('utf-8'))
 
         mfile = open('../netsim/network/' + sender + '/mac_key.pem', 'rb')
         mackey = mfile.read()
@@ -46,11 +34,11 @@ class CBCMessageEncrypter():
 
         # create header
         header_version = b'\x03\x06' # protocol version 3.6
-        header_type = str.encode(sender)    # message sender
-        # header_type = b'\x01'    # message sender
+        header_sender = str.encode(sender)    # message sender
+        # header_type = b'\x01'
         header_length = msg_length.to_bytes(2, byteorder='big') # message length (encoded on 2 bytes)
         header_sqn = (int(sndsqn.decode('utf-8')) + 1).to_bytes(4, byteorder='big')  # next message sequence number (encoded on 4 bytes)
-        header = header_version + header_type + header_length + header_sqn
+        header = header_version + header_sender + header_length + header_sqn
 
         # encrypt what needs to be encrypted (payload + padding)
         iv = Random.get_random_bytes(AES.block_size)
@@ -64,12 +52,5 @@ class CBCMessageEncrypter():
         MAC.update(iv)
         mac = MAC.digest()
 
-
         payload = header + iv + encrypted + mac
-        # print(payload)
         return payload
-
-
-
-# test = CBCMessageEncrypter()
-# test.encryptMessage('A','ABCDE')

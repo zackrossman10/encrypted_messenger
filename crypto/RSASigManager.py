@@ -23,13 +23,16 @@ class RSASigManager:
 
 	# return Sigkpk-(data)
 	def sign(self, data):
+
 		# sign the payload with leader's private key
 		h = SHA256.new()
 		h.update(data)
 		signature = self.signer.sign(h)
 		return b64encode(signature).decode('ASCII')
 
+	# verify (A|K|T_Pk|Sigkpk-(B|K|T_Pk)) from the ISO protocol
 	def verify(self, ver_data, signature):
+
 		kfile = open('../netsim/network/pubkeys/rsa-pubkey' + self.participant_address + '.pem', 'r')
 		pubkeystr = kfile.read()
 		kfile.close()
@@ -44,7 +47,6 @@ class RSASigManager:
 		# verify the signature
 		result = verifier.verify(h, signature)
 
-		# return the result of the verification on the screen 
 		if result:
 		        return True
 		else:
