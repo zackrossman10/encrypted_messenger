@@ -9,13 +9,14 @@ from CBCMessageEncrypter import CBCMessageEncrypter
 
 NET_PATH = './'
 OWN_ADDR = 'A'
+MOD_ATTACK = False
 
 # ------------       
 # main program
 # ------------
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], shortopts='hp:a:', longopts=['help', 'path=', 'addr='])
+	opts, args = getopt.getopt(sys.argv[1:], shortopts='hp:a:m', longopts=['help', 'path=', 'addr=', 'mod_attack'])
 except getopt.GetoptError:
 	print('Usage: python sender.py -p <network path> -a <own addr>')
 	sys.exit(1)
@@ -28,6 +29,8 @@ for opt, arg in opts:
 		NET_PATH = arg
 	elif opt == '-a' or opt == '--addr':
 		OWN_ADDR = arg
+	elif opt == '-m' or opt == '--mod_attack':
+		MOD_ATTACK = True
 
 if (NET_PATH[-1] != '/') and (NET_PATH[-1] != '\\'): NET_PATH += '/'
 
@@ -48,7 +51,11 @@ msg_encrypter = CBCMessageEncrypter()
 print('Main loop started...')
 while True:
 	msg = input('Type a message: ')
-	enc_msg = msg_encrypter.encryptMessage(OWN_ADDR, msg)
+	enc_msg = b''
+	if MOD_ATTACK: 
+		enc_msg = msg_encrypter.encryptMessage(OWN_ADDR, msg, True)
+	else:
+		enc_msg = msg_encrypter.encryptMessage(OWN_ADDR, msg, False)
 	dst = input('Type a destination address: ')
 
 	netif.send_msg(dst, enc_msg)

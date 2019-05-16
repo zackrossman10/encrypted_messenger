@@ -10,7 +10,7 @@ outputfile = ""
 
 class CBCMessageEncrypter():
 
-    def encryptMessage(self, sender, payload):
+    def encryptMessage(self, sender, payload, mod_attack):
 
         sndsqnFile = open('../netsim/network/' + sender + '/sndsqn/sndstate' + sender + '.txt' , 'rb')
         sndsqn = sndsqnFile.read()
@@ -52,5 +52,10 @@ class CBCMessageEncrypter():
         MAC.update(iv)
         mac = MAC.digest()
 
-        payload = header + iv + encrypted + mac
-        return payload
+        if mod_attack:
+            # modify the payload, MAC verification should fail on receiver end
+            payload = header + iv + b'\x00'*len(encrypted) + mac
+            return payload
+        else: 
+            payload = header + iv + encrypted + mac
+            return payload

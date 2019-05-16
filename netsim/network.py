@@ -65,7 +65,7 @@ for opt, arg in opts:
 		ADDR_SPACE = arg
 	elif opt == '-c' or opt == '--clean':
 		CLEAN = True
-	elif opt == '-c' or opt == '--wipe':
+	elif opt == '-w' or opt == '--wipe':
 		WIPE = True
 
 ADDR_SPACE = ''.join(sorted(set(ADDR_SPACE)))
